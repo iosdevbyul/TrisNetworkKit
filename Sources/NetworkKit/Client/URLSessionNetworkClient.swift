@@ -29,6 +29,10 @@ public final class URLSessionNetworkClient: NetworkClient {
 
         let (data, response) = try await session.data(for: request)
 
+        guard let response = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+
         fatalError("Next step")
     }
     
