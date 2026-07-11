@@ -33,6 +33,10 @@ public final class URLSessionNetworkClient: NetworkClient {
             throw NetworkError.invalidResponse
         }
 
+        guard 200...299 ~= response.statusCode else {
+            throw NetworkError.invalidStatusCode(response.statusCode)
+        }
+
         fatalError("Next step")
     }
     
