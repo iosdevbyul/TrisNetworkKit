@@ -1,5 +1,5 @@
 //
-//  📄 Endpoint+Default.swift
+//  Endpoint+Default.swift
 //  NetworkKit
 //
 //  Created by COMATOKI on 2026-07-12.

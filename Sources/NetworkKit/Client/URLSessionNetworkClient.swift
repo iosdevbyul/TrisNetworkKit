@@ -19,4 +19,11 @@ public final class URLSessionNetworkClient: NetworkClient {
         self.configuration = configuration
         self.session = session
     }
+
+    public func request<T: Decodable>(
+        endpoint: any Endpoint,
+        responseType: T.Type
+    ) async throws -> T {
+        fatalError("Not implemented yet.")
+    }
 }

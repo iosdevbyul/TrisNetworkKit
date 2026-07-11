@@ -9,7 +9,7 @@ import Foundation
 
 public protocol NetworkClient {
     func request<T: Decodable>(
-        endpoint: Endpoint,
+        endpoint: any Endpoint,
         responseType: T.Type
     ) async throws -> T
 }
