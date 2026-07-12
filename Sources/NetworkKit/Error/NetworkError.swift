@@ -9,6 +9,6 @@ public enum NetworkError: Error {
     case invalidURL
     case invalidResponse
     case decodingFailed(Error)
-    case serverError(statusCode: Int)
+    case serverError(_ statusCode: Int)
     case unknown(Error)
 }

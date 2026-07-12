@@ -34,10 +34,14 @@ public final class URLSessionNetworkClient: NetworkClient {
         }
 
         guard 200...299 ~= response.statusCode else {
-            throw NetworkError.invalidStatusCode(response.statusCode)
+            throw NetworkError.serverError(response.statusCode)
         }
 
-        fatalError("Next step")
+        do {
+            return try JSONDecoder().decode(responseType, from: data)
+        } catch {
+            throw NetworkError.decodingFailed(error)
+        }
     }
     
     // MARK: - Private
