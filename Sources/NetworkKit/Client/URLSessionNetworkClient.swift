@@ -11,13 +11,13 @@ public final class URLSessionNetworkClient: NetworkClient {
     
     private let configuration: NetworkConfiguration
     private let session: URLSession
-    private let logger: NetworkLogger
+    private let logger: any NetworkLogger
     private let decoder = JSONDecoder()
     
     public init(
         configuration: NetworkConfiguration,
         session: URLSession = .shared,
-        logger: NetworkLogger = NoOpNetworkLogger()
+        logger: any NetworkLogger = NoOpNetworkLogger()
     ) {
         self.configuration = configuration
         self.session = session
