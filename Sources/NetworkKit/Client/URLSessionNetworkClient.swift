@@ -11,13 +11,17 @@ public final class URLSessionNetworkClient: NetworkClient {
     
     private let configuration: NetworkConfiguration
     private let session: URLSession
+    private let logger: NetworkLogger
+    private let decoder = JSONDecoder()
     
     public init(
         configuration: NetworkConfiguration,
-        session: URLSession = .shared
+        session: URLSession = .shared,
+        logger: NetworkLogger = NoOpNetworkLogger()
     ) {
         self.configuration = configuration
         self.session = session
+        self.logger = logger
     }
     
     public func request<T: Decodable>(
@@ -27,18 +31,42 @@ public final class URLSessionNetworkClient: NetworkClient {
 
         let request = try makeRequest(from: endpoint)
 
-        let (data, response) = try await session.data(for: request)
+        logger.log(.request(request: request))
+
+        let data: Data
+        let response: URLResponse
+
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            logger.log(
+                .transportError(
+                    request: request,
+                    error: error
+                )
+            )
+
+            throw NetworkError.unknown(error)
+        }
 
         guard let response = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
 
+        logger.log(
+            .response(
+                request: request,
+                response: response,
+                data: data
+            )
+        )
+
         guard 200...299 ~= response.statusCode else {
             throw NetworkError.serverError(response.statusCode)
         }
-
+        
         do {
-            return try JSONDecoder().decode(responseType, from: data)
+            return try decoder.decode(T.self, from: data)
         } catch {
             throw NetworkError.decodingFailed(error)
         }
