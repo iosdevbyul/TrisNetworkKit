@@ -10,8 +10,15 @@ import XCTest
 
 final class URLSessionNetworkClientTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        MockURLProtocol.reset()
+    }
+    
     func test_request_whenResponseIs200_returnsDecodedModel() async throws {
 
+//        MockURLProtocol.reset()
+        
         let responseData = """
         {
             "id": 1,
@@ -81,7 +88,9 @@ final class URLSessionNetworkClientTests: XCTestCase {
     }
     
     func test_request_whenResponseIs404_throwsServerError() async {
-
+        
+//        MockURLProtocol.reset()
+        
         MockURLProtocol.response = HTTPURLResponse(
             url: URL(string: "https://example.com/users/1")!,
             statusCode: 404,
@@ -159,6 +168,8 @@ final class URLSessionNetworkClientTests: XCTestCase {
     
     func test_request_whenResponseDataIsInvalid_throwsDecodingFailed() async {
 
+//        MockURLProtocol.reset()
+        
         let invalidResponseData = """
         {
             "id": "invalid",
@@ -250,6 +261,8 @@ final class URLSessionNetworkClientTests: XCTestCase {
     
     func test_request_whenTransportFails_throwsUnknownError() async {
 
+//        MockURLProtocol.reset()
+        
         let expectedError = URLError(
             .notConnectedToInternet
         )

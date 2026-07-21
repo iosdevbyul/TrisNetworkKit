@@ -24,6 +24,12 @@ final class MockURLProtocol: URLProtocol {
     ) -> URLRequest {
         request
     }
+    
+    static func reset() {
+        response = nil
+        responseData = nil
+        error = nil
+    }
 
     override func startLoading() {
 
