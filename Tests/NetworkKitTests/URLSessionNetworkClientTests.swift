@@ -42,9 +42,12 @@ final class URLSessionNetworkClientTests: XCTestCase {
             baseURL: URL(string: "https://example.com")!
         )
 
+        let logger = MockNetworkLogger()
+
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
-            session: session
+            session: session,
+            logger: logger
         )
 
         let user = try await client.request(
@@ -59,6 +62,22 @@ final class URLSessionNetworkClientTests: XCTestCase {
                 name: "Tris"
             )
         )
+        XCTAssertEqual(
+            logger.events.count,
+            2
+        )
+        
+        if case .request = logger.events[0] {
+            // Expected
+        } else {
+            XCTFail("Expected request log event.")
+        }
+
+        if case .response = logger.events[1] {
+            // Expected
+        } else {
+            XCTFail("Expected response log event.")
+        }
     }
     
     func test_request_whenResponseIs404_throwsServerError() async {
@@ -86,10 +105,12 @@ final class URLSessionNetworkClientTests: XCTestCase {
         let networkConfiguration = NetworkConfiguration(
             baseURL: URL(string: "https://example.com")!
         )
-
+        
+        let logger = MockNetworkLogger()
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
-            session: session
+            session: session,
+            logger: logger
         )
 
         do {
@@ -116,6 +137,23 @@ final class URLSessionNetworkClientTests: XCTestCase {
             XCTFail(
                 "Expected NetworkError.serverError, but received \(error)"
             )
+        }
+        
+        XCTAssertEqual(
+            logger.events.count,
+            2
+        )
+        
+        if case .request = logger.events[0] {
+            // Expected
+        } else {
+            XCTFail("Expected request log event.")
+        }
+
+        if case .response = logger.events[1] {
+            // Expected
+        } else {
+            XCTFail("Expected response log event.")
         }
     }
     
@@ -152,9 +190,12 @@ final class URLSessionNetworkClientTests: XCTestCase {
             baseURL: URL(string: "https://example.com")!
         )
 
+        let logger = MockNetworkLogger()
+
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
-            session: session
+            session: session,
+            logger: logger
         )
 
         do {
@@ -163,7 +204,9 @@ final class URLSessionNetworkClientTests: XCTestCase {
                 responseType: MockUser.self
             )
 
-            XCTFail("Expected decodingFailed, but request succeeded.")
+            XCTFail(
+                "Expected decodingFailed, but request succeeded."
+            )
 
         } catch let error as NetworkError {
 
@@ -180,6 +223,27 @@ final class URLSessionNetworkClientTests: XCTestCase {
         } catch {
             XCTFail(
                 "Expected NetworkError.decodingFailed, but received \(error)"
+            )
+        }
+
+        XCTAssertEqual(
+            logger.events.count,
+            2
+        )
+
+        if case .request = logger.events[0] {
+            // Expected
+        } else {
+            XCTFail(
+                "Expected request log event."
+            )
+        }
+
+        if case .response = logger.events[1] {
+            // Expected
+        } else {
+            XCTFail(
+                "Expected response log event."
             )
         }
     }
@@ -207,10 +271,12 @@ final class URLSessionNetworkClientTests: XCTestCase {
         let networkConfiguration = NetworkConfiguration(
             baseURL: URL(string: "https://example.com")!
         )
-
+        
+        let logger = MockNetworkLogger()
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
-            session: session
+            session: session,
+            logger: logger
         )
 
         do {
@@ -246,5 +312,23 @@ final class URLSessionNetworkClientTests: XCTestCase {
                 "Expected NetworkError.unknown, but received \(error)"
             )
         }
+        
+        XCTAssertEqual(
+            logger.events.count,
+            2
+        )
+        
+        if case .request = logger.events[0] {
+            // Expected
+        } else {
+            XCTFail("Expected request log event.")
+        }
+        
+        if case .transportError = logger.events[1] {
+            // Expected
+        } else {
+            XCTFail("Expected transportError log event.")
+        }
     }
 }
+
