@@ -184,4 +184,67 @@ final class URLSessionNetworkClientTests: XCTestCase {
         }
     }
     
+    func test_request_whenTransportFails_throwsUnknownError() async {
+
+        let expectedError = URLError(
+            .notConnectedToInternet
+        )
+
+        MockURLProtocol.response = nil
+        MockURLProtocol.responseData = nil
+        MockURLProtocol.error = expectedError
+
+        let configuration = URLSessionConfiguration.ephemeral
+
+        configuration.protocolClasses = [
+            MockURLProtocol.self
+        ]
+
+        let session = URLSession(
+            configuration: configuration
+        )
+
+        let networkConfiguration = NetworkConfiguration(
+            baseURL: URL(string: "https://example.com")!
+        )
+
+        let client = URLSessionNetworkClient(
+            configuration: networkConfiguration,
+            session: session
+        )
+
+        do {
+            _ = try await client.request(
+                endpoint: MockUserEndpoint.user,
+                responseType: MockUser.self
+            )
+
+            XCTFail(
+                "Expected unknown error, but request succeeded."
+            )
+
+        } catch let error as NetworkError {
+
+            switch error {
+            case .unknown(let underlyingError):
+
+                let urlError = underlyingError as? URLError
+
+                XCTAssertEqual(
+                    urlError?.code,
+                    .notConnectedToInternet
+                )
+
+            default:
+                XCTFail(
+                    "Expected unknown error, but received \(error)"
+                )
+            }
+
+        } catch {
+            XCTFail(
+                "Expected NetworkError.unknown, but received \(error)"
+            )
+        }
+    }
 }
