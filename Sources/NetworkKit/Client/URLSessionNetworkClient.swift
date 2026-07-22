@@ -13,15 +13,18 @@ public final class URLSessionNetworkClient: NetworkClient {
     private let session: URLSession
     private let logger: any NetworkLogger
     private let decoder = JSONDecoder()
+    private let interceptor: any RequestInterceptor
     
     public init(
         configuration: NetworkConfiguration,
         session: URLSession = .shared,
-        logger: any NetworkLogger = NoOpNetworkLogger()
+        logger: any NetworkLogger = NoOpNetworkLogger(),
+        interceptor: any RequestInterceptor = NoOpRequestInterceptor()
     ) {
         self.configuration = configuration
         self.session = session
         self.logger = logger
+        self.interceptor = interceptor
     }
     
     public func request<T: Decodable>(
@@ -29,9 +32,19 @@ public final class URLSessionNetworkClient: NetworkClient {
         responseType: T.Type
     ) async throws -> T {
 
-        let request = try makeRequest(from: endpoint)
+        var request = try makeRequest(
+            from: endpoint
+        )
 
-        logger.log(.request(request: request))
+        request = try await interceptor.intercept(
+            request
+        )
+
+        logger.log(
+            .request(
+                request: request
+            )
+        )
 
         let data: Data
         let response: URLResponse
