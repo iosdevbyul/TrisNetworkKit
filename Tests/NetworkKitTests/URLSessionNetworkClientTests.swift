@@ -50,11 +50,14 @@ final class URLSessionNetworkClientTests: XCTestCase {
         )
 
         let logger = MockNetworkLogger()
-
+        let interceptor = AuthorizationRequestInterceptor(
+            token: "test-token"
+        )
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
             session: session,
-            logger: logger
+            logger: logger,
+            interceptor: interceptor
         )
 
         let user = try await client.request(
@@ -342,6 +345,65 @@ final class URLSessionNetworkClientTests: XCTestCase {
         } else {
             XCTFail("Expected transportError log event.")
         }
+    }
+    
+    
+    func test_request_withAuthorizationInterceptor_addsAuthorizationHeader() async throws {
+
+        let responseData = """
+        {
+            "id": 1,
+            "name": "Tris"
+        }
+        """.data(using: .utf8)!
+
+        MockURLProtocol.response = HTTPURLResponse(
+            url: URL(string: "https://example.com/users/1")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        MockURLProtocol.responseData = responseData
+        MockURLProtocol.error = nil
+
+        let configuration = URLSessionConfiguration.ephemeral
+
+        configuration.protocolClasses = [
+            MockURLProtocol.self
+        ]
+
+        let session = URLSession(
+            configuration: configuration
+        )
+
+        let networkConfiguration = NetworkConfiguration(
+            baseURL: URL(string: "https://example.com")!
+        )
+
+        let interceptor = AuthorizationRequestInterceptor(
+            token: "test-token"
+        )
+
+        let client = URLSessionNetworkClient(
+            configuration: networkConfiguration,
+            session: session,
+            interceptor: interceptor
+        )
+
+        _ = try await client.request(
+            endpoint: MockUserEndpoint.user,
+            responseType: MockUser.self
+        )
+
+        let authorization = MockURLProtocol.request?.value(
+            forHTTPHeaderField: "Authorization"
+        )
+
+        XCTAssertEqual(
+            authorization,
+            "Bearer test-token"
+        )
     }
 }
 

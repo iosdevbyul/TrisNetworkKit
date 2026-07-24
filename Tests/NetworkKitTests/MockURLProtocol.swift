@@ -12,7 +12,8 @@ final class MockURLProtocol: URLProtocol {
     nonisolated(unsafe) static var response: HTTPURLResponse?
     nonisolated(unsafe) static var responseData: Data?
     nonisolated(unsafe) static var error: Error?
-
+    nonisolated(unsafe) static var request: URLRequest?
+    
     override class func canInit(
         with request: URLRequest
     ) -> Bool {
@@ -29,10 +30,11 @@ final class MockURLProtocol: URLProtocol {
         response = nil
         responseData = nil
         error = nil
+        request = nil
     }
 
     override func startLoading() {
-
+        Self.request = request
         if let error = Self.error {
             client?.urlProtocol(
                 self,
