@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol NetworkClient {
+public protocol NetworkClient: Sendable {
     func request<T: Decodable>(
         endpoint: any Endpoint,
         responseType: T.Type

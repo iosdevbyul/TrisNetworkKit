@@ -5,7 +5,7 @@
 //  Created by COMATOKI on 2026-07-13.
 //
 
-public protocol NetworkLogger {
+public protocol NetworkLogger: Sendable {
     func log(_ event: NetworkLogEvent)
 }
 
