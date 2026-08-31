@@ -9,20 +9,26 @@ import Foundation
 
 public struct AuthorizationRequestInterceptor: RequestInterceptor {
 
-    private let token: String
+    private let tokenProvider: any AccessTokenProvider
 
-    public init(token: String) {
-        self.token = token
+    public init(
+        tokenProvider: any AccessTokenProvider
+    ) {
+        self.tokenProvider = tokenProvider
     }
 
     public func intercept(
         _ request: URLRequest
     ) async throws -> URLRequest {
 
+        guard let accessToken = tokenProvider.accessToken else {
+            return request
+        }
+
         var request = request
 
         request.setValue(
-            "Bearer \(token)",
+            "Bearer \(accessToken)",
             forHTTPHeaderField: "Authorization"
         )
 
