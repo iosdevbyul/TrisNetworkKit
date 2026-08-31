@@ -50,14 +50,11 @@ final class URLSessionNetworkClientTests: XCTestCase {
         )
 
         let logger = MockNetworkLogger()
-        let interceptor = AuthorizationRequestInterceptor(
-            token: "test-token"
-        )
+
         let client = URLSessionNetworkClient(
             configuration: networkConfiguration,
             session: session,
-            logger: logger,
-            interceptor: interceptor
+            logger: logger
         )
 
         let user = try await client.request(
@@ -381,8 +378,12 @@ final class URLSessionNetworkClientTests: XCTestCase {
             baseURL: URL(string: "https://example.com")!
         )
 
+        let tokenProvider = MockAccessTokenProvider(
+            accessToken: "test-token"
+        )
+
         let interceptor = AuthorizationRequestInterceptor(
-            token: "test-token"
+            tokenProvider: tokenProvider
         )
 
         let client = URLSessionNetworkClient(

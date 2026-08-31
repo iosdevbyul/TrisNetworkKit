@@ -8,7 +8,7 @@
 import Foundation
 @testable import NetworkKit
 
-final class MockNetworkLogger: NetworkLogger {
+final class MockNetworkLogger: NetworkLogger, @unchecked Sendable {
 
     private(set) var events: [NetworkLogEvent] = []
 
