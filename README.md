@@ -85,7 +85,7 @@ Add NetworkKit as a dependency in your `Package.swift`:
 dependencies: [
     .package(
         url: "https://github.com/iosdevbyul/TrisNetworkKit.git",
-        from: "1.0.0"
+        from: "0.1.0"
     )
 ]
 ```
